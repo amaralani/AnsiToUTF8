@@ -12,6 +12,8 @@ public class CustomFileConverter {
 	private static final char BYTE_ORDER_MARK = '\uFEFF';
 	
 	public void createFile(String inputFile, String outputFile) throws IOException{
+		System.out.println("Input : "+inputFile);
+		System.out.println("Output : "+outputFile);
 		FileInputStream	input = new FileInputStream(inputFile);
 		
 		InputStreamReader inputStreamReader = new InputStreamReader(input, "windows-1256");
