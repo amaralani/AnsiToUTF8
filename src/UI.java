@@ -1,41 +1,36 @@
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.IOException;
-
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 
 public class UI extends JFrame implements ActionListener{
 
-		String source;
-		String destination;
+
 		JButton openButton = new JButton("Browse...");
-		JButton goButton = new JButton("Change the encoding in a magical way!");
+    JLabel label = new JLabel("");
+		JButton goButton = new JButton("Go!");
 		JFileChooser chooser = new JFileChooser();
 		File file;
+    File parentDir;
 		
-		FileFilter filter = new FileFilter(){
-			public boolean accept (File f){
-				if (f.getName().endsWith(".srt") || f.getName().endsWith(".txt"))
-					return true;
-				
-				return false;
-			}
-		
-			public String getDescription() {
-				
-				return "Text";
-			}
-		};
+		FileFilter filter = new FileFilter() {
+            public boolean accept (File f){
+                if (f.getName().endsWith(".srt") || f.getName().endsWith(".txt"))
+                    return true;
+
+                return false;
+            }
+
+            public String getDescription() {
+
+                return "Text";
+            }
+        };
 		
 		public UI(){
 			super("مبدل");
@@ -44,6 +39,9 @@ public class UI extends JFrame implements ActionListener{
 			this.setLayout(new FlowLayout());
 			add(openButton);
 			openButton.addActionListener(this);
+            goButton.addActionListener(this);
+            add(goButton);
+            add(label , BorderLayout.SOUTH);
 		}
 		public static void main(String[] args){
 			UI m = new UI();
@@ -54,37 +52,50 @@ public class UI extends JFrame implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		if(ae.getSource() == goButton){
-			CustomFileConverter customFileConverter = new CustomFileConverter();
-			try {
-				customFileConverter.createFile("a","b");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            File parentDir = new File(file.getParent()+"/new");
+            if(!parentDir.exists()){
+                parentDir.mkdir();
+            }
+            for(String filename : file.list()){
+                   processFile(filename);
+            }
+            ErrorWindow errorWindow = new ErrorWindow("Success!");
+            errorWindow.setLocation(this.getLocation());
+            errorWindow.setSize(100,100);
+            errorWindow.setVisible(true);
 		}else if(ae.getSource() == openButton){
-			//chooser.addChoosableFileFilter( filter);
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			chooser.setMultiSelectionEnabled(false);
 			int result = chooser.showOpenDialog(this);
-			if(result == chooser.APPROVE_OPTION){
-				file = chooser.getSelectedFile();
-				
-				System.out.println(file.getParent());
-				File parentDir = new File(file.getParent()+"/new");
-				if(!parentDir.exists()){
-					parentDir.mkdir();
-				}
-				
-				CustomFileConverter converter = new CustomFileConverter();
-				try {
-					converter.createFile(file.getPath(), parentDir+"/"+file.getName());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			if(result == JFileChooser.APPROVE_OPTION){
+				file = new File(chooser.getSelectedFile().getAbsolutePath());
+                label.setText("File # : "+String.valueOf(file.list(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith(".srt") || name.endsWith(".txt");
+                    }
+                }).length));
 			}
 		}
 		
 	}
+    private Boolean processFile(String filename){
+        if(new File(filename).isDirectory()){
+            for(String childFile : new File(filename).list()){
+                processFile(childFile);
+            }
+        }else if(filename.endsWith(".srt")) {
+            CustomFileConverter converter = new CustomFileConverter();
+            try {
+                converter.createFile(file.getPath(), parentDir + "/" + file.getName());
+                return true;
+            } catch (IOException e) {
+                ErrorWindow errorWindow = new ErrorWindow(e.getMessage());
+                return false;
+            }
+        }
+        return false;
+    }
 
 	
 }
