@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -12,15 +12,18 @@ import java.awt.event.ActionListener;
  */
 public class ErrorWindow extends JDialog implements ActionListener{
 
-    JLabel message = new JLabel();
-    JButton close = new JButton("Close");
-    public ErrorWindow(String message){
+    public ErrorWindow(String message, Point Location){
         super();
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setModal(true);
-        this.message.setText(message);
-        add(this.message,BorderLayout.CENTER);
+        JLabel message1 = new JLabel();
+        message1.setText(message);
+        add(message1,BorderLayout.CENTER);
+        JButton close = new JButton("Close");
         close.addActionListener(this);
+        this.setLocation(this.getLocation());
+        this.setSize(60, 60);
+        this.setVisible(true);
     }
 
     @Override

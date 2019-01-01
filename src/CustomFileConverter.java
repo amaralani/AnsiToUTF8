@@ -11,7 +11,7 @@ public class CustomFileConverter {
 
 	private static final char BYTE_ORDER_MARK = '\uFEFF';
 	
-	public void createFile(String inputFile, String outputFile) throws IOException{
+	public static void createFile(String inputFile, String outputFile) throws IOException{
 		System.out.println("Input : "+inputFile);
 		System.out.println("Output : "+outputFile);
 		FileInputStream	input = new FileInputStream(inputFile);
@@ -26,15 +26,14 @@ public class CustomFileConverter {
 		FileOutputStream output = new FileOutputStream(outputFile,true);
 		Writer writer = new OutputStreamWriter(output,"UTF-8");
 
-		String text = "";
+		StringBuilder text = new StringBuilder();
 		writer.write(BYTE_ORDER_MARK);
 		while(i !=-1){
 			String str = new String(data,0,i);
-            text = text+str;
+            text.append(str);
 			i = inputStreamReader.read(data);
-
 		}
-        writer.append(text);
+        writer.append(text.toString());
 
 		writer.close();
 		input.close();
